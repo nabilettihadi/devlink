@@ -3,93 +3,62 @@
 namespace App\Http\Controllers;
 
 use App\Models\Link;
-use App\Http\Requests\StoreLinkRequest;
-use App\Http\Requests\UpdateLinkRequest;
+use App\Models\Platform;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LinkController extends Controller
 {
-    /**
-     * Display a listing of the links.
-     *
-     * @param Request $request
-     * @return \Illuminate\Http\Response
-     */
     public function index(Request $request)
     {
-        $links = Link::with('user')->paginate(10);
+        $user = $request->user();
+        $links = $user->links()->with('platform')->paginate(10);
 
         return view('links.index', compact('links'));
     }
 
-    /**
-     * Store a newly created link in storage.
-     *
-     * @param StoreLinkRequest $request
-     * @return \Illuminate\Http\Response
-     */
-    public function store(StoreLinkRequest $request)
+    public function store(Request $request)
     {
-        $link = Link::create([
-            'title' => $request->title,
-            'url' => $request->url,
-            'description' => $request->description,
-            'user_id' => auth()->id(),
+        $request->validate([
+            'url' => 'required|url',
+            'platform_id' => 'required|exists:platforms,id',
         ]);
 
-        return redirect()->route('links.index')->with('success', 'Link created successfully!');
+        $user = $request->user();
+        $link = new Link([
+            'url' => $request->url,
+            'platform_id' => $request->platform_id,
+        ]);
+        $user->links()->save($link);
+
+        return redirect()->route('users.index')->with('success', 'Link created successfully!');
     }
 
-    /**
-     * Display the specified link.
-     *
-     * @param Link $link
-     * @return \Illuminate\Http\Response
-     */
     public function show(Link $link)
     {
         return view('links.show', compact('link'));
     }
 
-    /**
-     * Show the form for editing the specified link.
-     *
-     * @param Link $link
-     * @return \Illuminate\Http\Response
-     */
-    public function edit(Link $link)
+    public function update(Request $request, $link)
     {
-        return view('links.edit', compact('link'));
-    }
-
-    /**
-     * Update the specified link in storage.
-     *
-     * @param UpdateLinkRequest $request
-     * @param Link $link
-     * @return \Illuminate\Http\Response
-     */
-    public function update(UpdateLinkRequest $request, Link $link)
-    {
-        $link->update([
-            'title' => $request->title,
-            'url' => $request->url,
-            'description' => $request->description,
+        $request->validate([
+            'url' => 'required|url',
+            'platform_id' => 'required|exists:platforms,id',
         ]);
 
-        return redirect()->route('links.index')->with('success', 'Link updated successfully!');
-    }
+        $link = Link::findOrFail($link);
 
-    /**
-     * Remove the specified link from storage.
-     *
-     * @param Link $link
-     * @return \Illuminate\Http\Response
-     */
+        $link->update([
+            'url' => $request->url,
+            'platform_id' => $request->platform_id,
+        ]);
+        return redirect()->route('users.index')->with('success', 'Link updated successfully');
+    }
+    
     public function destroy(Link $link)
     {
         $link->delete();
 
-        return redirect()->route('links.index')->with('success', 'Link deleted successfully!');
+        return redirect()->route('users.index')->with('success', 'Link deleted successfully!');
     }
 }

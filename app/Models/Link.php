@@ -7,14 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class Link extends Model
 {
-    use HasFactory;
+    protected $fillable = ['url', 'platform_id', 'user_id'];
 
-    protected $fillable = [
-        'title',
-        'url',
-        'description',
-        'user_id',
-    ];
+    public function platform()
+    {
+        return $this->belongsTo(Platform::class);
+    }
 
     public function user()
     {

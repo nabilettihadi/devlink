@@ -6,31 +6,24 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    /**
-     * Run the migrations.
-     *
-     * @return void
-     */
-    public function up(): void
+    public function up()
     {
         Schema::create('links', function (Blueprint $table) {
             $table->id();
-            $table->string('title')->notNull();
-            $table->text('url')->notNull();
-            $table->text('description')->nullable();
-            $table->unsignedBigInteger('user_id')->notNull();
+            $table->text('url')->nullable();
+            $table->unsignedBigInteger('platform_id')->nullable();
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->timestamps();
-            $table->foreign('user_id')->references('id')->on('users');
+
+            $table->foreign('platform_id')->references('id')->on('platforms')->onDelete('cascade');
+            $table->foreign('user_id')->references('id')->on('users')->onDelete('cascade'); 
         });
     }
 
-    /**
-     * Reverse the migrations.
-     *
-     * @return void
-     */
-    public function down(): void
+    public function down()
     {
         Schema::dropIfExists('links');
     }
 };
+
+

@@ -5,23 +5,18 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ config('app.name', 'LinkShare') }}</title>
-
-    <!-- External Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
-
-    <!-- Tailwind CSS -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.7/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
 
-    <!-- Custom Styles -->
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Poppins', sans-serif;
             background-color: #f5f7fa;
             color: #374151;
         }
 
-        .btn {
-            display: inline-block;
+        .btn-primary {
             padding: 12px 24px;
             background-color: #4CAF50;
             color: white;
@@ -32,140 +27,142 @@
             transition: background-color 0.3s ease;
         }
 
-        .btn:hover {
+        .btn-primary:hover {
             background-color: #45a049;
         }
 
-        /* Animations */
-        @keyframes fadeIn {
-            0% {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        #burger-menu {
+            display: none;
         }
 
-        .animated {
-            animation: fadeIn 1s ease-in-out;
+        #burger-menu:checked+.burger-nav {
+            display: block;
         }
 
-        /* Header Style */
-        header {
-            background-color: #4c51bf;
-            color: #ffffff;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-        }
-
-        /* Main Section Style */
-        main {
-            padding: 40px 20px;
-        }
-
-        .section-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #4c51bf;
-            margin-bottom: 20px;
-        }
-
-        .section-text {
-            font-size: 1.25rem;
-            color: #6b7280;
-            margin-bottom: 30px;
-        }
-
-        /* Dashboard Style */
-        .dashboard {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            margin-top: 30px;
-        }
-
-        .widget {
+        .burger-nav {
+            display: none;
+            flex-direction: column;
+            position: absolute;
+            top: 64px;
+            right: 8px;
             background-color: #ffffff;
-            padding: 20px;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            z-index: 1000;
         }
 
-        /* Responsive Design */
+        .burger-nav a {
+            padding: 8px 16px;
+            display: block;
+            color: #374151;
+            text-decoration: none;
+            transition: background-color 0.3s ease;
+        }
+
+        .burger-nav a:hover {
+            background-color: #f0f4f8;
+        }
+
         @media (max-width: 768px) {
-            .section-title {
-                font-size: 2rem;
+            .burger-nav {
+                right: 0;
             }
 
-            .section-text {
-                font-size: 1rem;
-            }
-
-            .btn {
-                padding: 10px 20px;
-                font-size: 14px;
+            .burger-nav a {
+                color: #ffffff;
             }
         }
     </style>
 </head>
 
 <body>
-    <header class="flex justify-between items-center py-4 px-8">
-        <h1 class="text-2xl font-bold">LinkShare</h1>
-        <nav>
-            @if (Auth::check())
-                <!-- Formulaire de déconnexion -->
+    <input type="checkbox" id="burger-menu" class="hidden">
+    <div class="burger-nav shadow-md" id="burgerNav">
+        <a href="#" class="btn-primary text-white bg-green-500 hover:bg-green-600">Home</a>
+        @auth
+            <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
+                @csrf
+            </form>
+            <button type="submit" class="btn-primary bg-red-500 hover:bg-red-600 mt-2"
+                onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Déconnexion</button>
+        @else
+            <a href="{{ route('login') }}" class="btn-primary text-white bg-blue-500 hover:bg-blue-600 mt-2">Login</a>
+            <a href="{{ route('register') }}"
+                class="btn-primary text-white bg-indigo-500 hover:bg-indigo-600 mt-2">Register</a>
+        @endauth
+    </div>
+
+    <header class="flex justify-between items-center py-4 px-8 bg-white shadow-md">
+        <h1 class="text-2xl font-bold text-gray-800">LinkShare</h1>
+        <label for="burger-menu" class="block cursor-pointer lg:hidden">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16">
+                </path>
+            </svg>
+        </label>
+        <nav class="hidden lg:flex items-center">
+            <a href="#" class="btn-primary text-white bg-green-500 hover:bg-green-600">Home</a>
+            @auth
                 <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
-                    @csrf <!-- Inclure le jeton CSRF -->
+                    @csrf
                 </form>
-                <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="btn btn-red">Déconnexion</a>
+                <button type="submit" class="btn-primary bg-red-500 hover:bg-red-600 ml-4"
+                    onclick="event.preventDefault(); document.getElementById('logout-form').submit();">Déconnexion</button>
             @else
-                <a href="{{ route('login') }}" class="btn bg-green-500 hover:bg-green-600">Login</a>
-                <a href="{{ route('register') }}" class="btn bg-green-500 hover:bg-green-600 ml-4">Register</a>
-            @endif
+                <a href="{{ route('login') }}" class="btn-primary text-white bg-blue-500 hover:bg-blue-600 ml-4">Login</a>
+                <a href="{{ route('register') }}"
+                    class="btn-primary text-white bg-indigo-500 hover:bg-indigo-600 ml-4">Register</a>
+            @endauth
         </nav>
     </header>
-    <main class="container mx-auto">
-        <div class="animated">
-            <h2 class="section-title">Share with Ease</h2>
-            <p class="section-text">Effortlessly share links with friends, family, and colleagues. Upload your files,
-                generate a unique link, and grant instant access.</p>
-            <a href="{{ route('links.create') }}"
-                class="btn bg-gradient-to-r from-green-400 to-green-600 hover:from-green-500 hover:to-green-700">Get
-                Started</a>
+
+
+    <section class="hero bg-cover bg-center flex items-center justify-center h-screen"
+        style="background-image: url('https://picsum.photos/1500/600')">
+        <div class="text-center text-white">
+            <h1 class="text-4xl font-bold mb-4">Share Links Effortlessly</h1>
+            <p class="text-lg mb-8">With LinkShare, sharing links has never been easier. Create, share, and track your
+                links seamlessly.</p>
+            @auth
+                <a href="{{ route('links.create') }}" class="btn-primary">Get Started</a>
+            @else
+                <a href="{{ route('login') }}" class="btn-primary">Get Started</a>
+            @endauth
         </div>
-        <div class="dashboard">
-            <div class="widget bg-gradient-to-r from-green-200 to-green-100">
-                <h3 class="text-lg font-semibold mb-2">Notifications</h3>
-                <ul>
-                    <li>New link shared!</li>
-                    <li>Your file is downloaded!</li>
-                    <li>Updated security settings.</li>
-                </ul>
+    </section>
+
+    <section class="features py-16">
+        <h2 class="text-3xl font-semibold text-center mb-8">Why Choose LinkShare?</h2>
+        <div class="flex justify-center gap-8">
+            <div class="feature-item text-center">
+                <i data-feather="check-circle"
+                    class="text-4xl mb-4 hover:text-green-500 transition-colors duration-300"></i>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Easy to Use</h3>
+                <p class="text-base text-gray-700">Our platform is designed to be user-friendly and intuitive.</p>
             </div>
-            <div class="widget bg-gradient-to-r from-purple-200 to-purple-100">
-                <h3 class="text-lg font-semibold mb-2">File Preview</h3>
-                <img src="preview.jpg" alt="File Preview" class="w-full h-auto rounded">
+            <div class="feature-item text-center">
+                <i data-feather="lock" class="text-4xl mb-4 hover:text-blue-500 transition-colors duration-300"></i>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Secure</h3>
+                <p class="text-base text-gray-700">We prioritize your privacy and security with top-notch encryption.
+                </p>
             </div>
-            <div class="widget bg-gradient-to-r from-blue-200 to-blue-100">
-                <h3 class="text-lg font-semibold mb-2">User Dashboard</h3>
-                <p>Welcome back, John Doe!</p>
-                <p>Total shares: 25</p>
-                <p>Most shared link: example.com</p>
-            </div>
-            <div class="widget bg-gradient-to-r from-yellow-200 to-yellow-100">
-                <h3 class="text-lg font-semibold mb-2">Real-time Analytics</h3>
-                <p>Link clicks today: 150</p>
-                <p>Top referrer: Google</p>
+            <div class="feature-item text-center">
+                <i data-feather="bar-chart-2"
+                    class="text-4xl mb-4 hover:text-purple-500 transition-colors duration-300"></i>
+                <h3 class="text-xl font-semibold mb-2 text-gray-800">Real-time Analytics</h3>
+                <p class="text-base text-gray-700">Track your link performance with detailed analytics.</p>
             </div>
         </div>
-    </main>
-    <footer class="text-center text-sm text-gray-500 py-4">
-        © {{ date('Y') }} {{ config('app.name') }}
+    </section>
+
+    <footer class="bg-gray-800 text-white py-4">
+        <p class="text-center">&copy; {{ date('Y') }} {{ config('app.name') }}. All rights reserved.</p>
     </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script>
+        feather.replace();
+    </script>
 </body>
 
 </html>
-
